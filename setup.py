@@ -388,15 +388,19 @@ if c_options['use_sdl2'] or (
                 '-Xlinker', '190'],
             'include_dirs': []
         }
-        for name in ('SDL2', 'SDL2_ttf', 'SDL2_image', 'SDL2_mixer'):
-            f_path = '/Library/Frameworks/{}.framework'.format(name)
-            if not exists(f_path):
-                print('Missing framework {}'.format(f_path))
-                sdl2_valid = False
-                continue
-            sdl2_flags['extra_link_args'] += ['-framework', name]
-            sdl2_flags['include_dirs'] += [join(f_path, 'Headers')]
-            print('Found sdl2 frameworks: {}'.format(f_path))
+        # Install these dependencies with brew
+        # For more details, see: https://github.com/uclatommy/kivy/wiki/Building-for-OSX-Python3
+        #for name in ('SDL2', 'SDL2_ttf', 'SDL2_image', 'SDL2_mixer'):
+        #    f_path = '/Library/Frameworks/{}.framework'.format(name)
+        #    if not exists(f_path):
+        #        print('Missing framework {}'.format(f_path))
+        #        sdl2_valid = False
+        #        continue
+        sdl2_flags['extra_link_args'] += ['-L/usr/local/lib']
+        for name in ('-lSDL2', '-lSDL2_ttf', '-lSDL2_image', '-lSDL2_mixer'):
+            sdl2_flags['extra_link_args'] += [name]
+        sdl2_flags['include_dirs'] += ['/usr/local/include/SDL2']
+        #    print('Found sdl2 frameworks: {}'.format(f_path))
 
         if not sdl2_valid:
             c_options['use_sdl2'] = False
