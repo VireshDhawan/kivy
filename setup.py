@@ -353,18 +353,32 @@ if platform not in ('ios', 'android') and (c_options['use_gstreamer']
                                            in (None, True)):
     if c_options['use_osx_frameworks'] and platform == 'darwin':
         # check the existence of frameworks
-        f_path = '/Library/Frameworks/GStreamer.framework'
-        if not exists(f_path):
-            c_options['use_gstreamer'] = False
-            print('Missing GStreamer framework {}'.format(f_path))
-        else:
-            c_options['use_gstreamer'] = True
-            gst_flags = {
-                'extra_link_args': [
-                    '-Xlinker', '-headerpad',
-                    '-Xlinker', '190',
-                    '-framework', 'GStreamer'],
-                'include_dirs': [join(f_path, 'Headers')]}
+        # Install this dependencies with brew
+        #f_path = '/Library/Frameworks/GStreamer.framework'
+        #if not exists(f_path):
+        #    c_options['use_gstreamer'] = False
+        #    print('Missing GStreamer framework {}'.format(f_path))
+        #else:
+        c_options['use_gstreamer'] = True
+        gst_flags = {
+            'extra_link_args': [
+                '-Xlinker', '-headerpad',
+                '-Xlinker', '190',
+                '-L/usr/local/Cellar/gstreamer/1.6.1/lib',
+                '-L/usr/local/Cellar/glib/2.46.2/lib',
+                '-L/usr/local/opt/gettext/lib',
+                '-lgstreamer-1.0',
+                '-lgobject-2.0',
+                '-lglib-2.0',
+                '-lintl'],
+        #        '-framework', 'GStreamer'],
+            'include_dirs': [
+                '/usr/local/Cellar/gstreamer/1.6.1/include/gstreamer-1.0',
+                '/usr/local/Cellar/gstreamer/1.6.1/lib/gstreamer-1.0/include',
+                '/usr/local/Cellar/glib/2.46.2/include/glib-2.0',
+                '/usr/local/Cellar/glib/2.46.2/lib/glib-2.0/include',
+                '/usr/local/opt/gettext/include']
+                     }
 
     else:
         # use pkg-config approach instead
