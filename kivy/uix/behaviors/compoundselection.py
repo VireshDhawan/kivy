@@ -255,7 +255,7 @@ class CompoundSelectionBehavior(object):
             return False
         keys = self._key_list
         multi = self.multiselect
-        node_src, idx_src = self._reslove_last_node()
+        node_src, idx_src = self._resolve_last_node()
 
         if scancode[1] == 'shift':
             self._shift_down = True
@@ -325,10 +325,12 @@ class CompoundSelectionBehavior(object):
         'down': uc, 'right': rc, 'left': -rc, 'scrollup': sc,
         'scrolldown': -sc, 'scrollright': -sc, 'scrollleft': sc}
 
-    def _reslove_last_node(self):
+    def _resolve_last_node(self):
         # for offset selection, we have a anchor, and we select everything
         # between anchor and added offset relative to last node
         sister_nodes = self.get_selectable_nodes()
+        if sister_nodes is None:
+            return None, 0
         if not len(sister_nodes):
             return None, 0
         last_node = self._last_selected_node
