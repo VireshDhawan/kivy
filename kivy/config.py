@@ -126,7 +126,8 @@ Available configuration tokens
 
 :graphics:
     `borderless`: int , one of 0 or 1
-        If set to `1`, removes the window border/decoration.
+        If set to `1`, removes the window border/decoration. Window resizing
+        must also be disabled to hide the resizing border.
     `window_state`: string , one of 'visible', 'hidden', 'maximized' \
                     or 'minimized'
         Sets the window state, defaults to 'visible'. This option is available
@@ -149,8 +150,10 @@ Available configuration tokens
         Left position of the :class:`~kivy.core.window.Window`.
     `maxfps`: int, defaults to 60
         Maximum FPS allowed.
-        ..warning::
+
+        .. warning::
             Setting maxfps to 0 will lead to max CPU usage.
+
     'multisamples': int, defaults to 2
         Sets the `MultiSample Anti-Aliasing (MSAA)
         <http://en.wikipedia.org/wiki/Multisample_anti-aliasing>`_ level.
@@ -158,7 +161,6 @@ Available configuration tokens
         processing time.
 
         .. note::
-
            This feature is limited by device hardware support and will have no
            effect on devices which do not support the level of MSAA requested.
 
@@ -166,7 +168,7 @@ Available configuration tokens
         Position of the window on your display. If `auto` is used, you have no
         control of the initial position: `top` and `left` are ignored.
     `show_cursor`: int, one of 0 or 1
-        Show the cursor on the screen.
+        Set whether or not the cursor is shown on the window.
     `top`: int
         Top position of the :class:`~kivy.core.window.Window`.
     `resizable`: int, one of 0 or 1
@@ -179,8 +181,15 @@ Available configuration tokens
         `fullscreen` is set to `auto`.
     `minimum_width`: int
         Minimum width to restrict the window to. (sdl2 only)
-    `minimun_height`: int
+    `minimum_height`: int
         Minimum height to restrict the window to. (sdl2 only)
+    `min_state_time`: float, defaults to .035
+        Minimum time for widgets to display a given visual state.
+        This attrib is currently used by widgets like
+        :class:`~kivy.uix.dropdown.DropDown` &
+        :class:`~kivy.uix.behaviors.buttonbehavior.ButtonBehavior` to
+        make sure they display their current visual state for the given
+        time.
 
 :input:
 
@@ -248,6 +257,9 @@ Available configuration tokens
     Check the specific module's documentation for a list of accepted
     arguments.
 
+.. versionchanged:: 1.9.2
+    `min_state_time` has been added to the `graphics` section.
+
 .. versionchanged:: 1.9.0
     `borderless` and `window_state` have been added to the graphics section.
     The `fake` setting of the `fullscreen` option has been deprecated,
@@ -293,7 +305,7 @@ from weakref import ref
 _is_rpi = exists('/opt/vc/include/bcm_host.h')
 
 # Version number of current configuration format
-KIVY_CONFIG_VERSION = 14
+KIVY_CONFIG_VERSION = 15
 
 Config = None
 '''The default Kivy configuration object. This is a :class:`ConfigParser`
@@ -779,6 +791,9 @@ if not environ.get('KIVY_DOC_INCLUDE'):
         elif version == 13:
             Config.setdefault('graphics', 'minimum_width', '0')
             Config.setdefault('graphics', 'minimum_height', '0')
+
+        elif version == 14:
+            Config.setdefault('graphics', 'min_state_time', '.035')
 
         # elif version == 1:
         #    # add here the command for upgrading from configuration 0 to 1

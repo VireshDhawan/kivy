@@ -59,6 +59,7 @@ cdef extern from "X11/Xutil.h":
 cdef extern int x11_create_window(int width, int height, int x, int y, \
         int resizable, int fullscreen, int border, int above, int CWOR, char *title)
 cdef extern void x11_gl_swap()
+cdef extern void x11_set_title(char *title)
 cdef extern int x11_idle()
 cdef extern int x11_get_width()
 cdef extern int x11_get_height()
@@ -149,6 +150,7 @@ class WindowX11(WindowBase):
 
         resizable = Config.getint('graphics', 'resizable')
         multisamples = Config.getint('graphics', 'multisamples')
+        border = not Config.getint('graphics', 'borderless')
         pos = (0, 0)
 
         if self.position == 'auto':
@@ -160,7 +162,6 @@ class WindowX11(WindowBase):
                              '"auto" or "custom"')
 
         fullscreen = False
-        border = True
         above = False
         CWOR = False
         size = list(self.system_size)
@@ -226,6 +227,9 @@ class WindowX11(WindowBase):
     def flip(self):
         x11_gl_swap()
         super(WindowX11, self).flip()
+
+    def on_title(self, *kwargs):
+        x11_set_title(<char *><bytes>self.title)
 
     def on_keyboard(self, key,
         scancode=None, codepoint=None, modifier=None, **kwargs):

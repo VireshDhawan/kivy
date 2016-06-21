@@ -101,7 +101,7 @@ contains all the children. You can easily traverse the tree by doing::
     for child in root.children:
         print(child)
 
-However, this must be used carefuly. If you intend to modify the children list
+However, this must be used carefully. If you intend to modify the children list
 with one of the methods shown in the previous section, you must use a copy of
 the list like this::
 
@@ -118,13 +118,16 @@ use the |RelativeLayout|. More on that later) and |size|, is an absolute size.
 Widgets Z Index
 ---------------
 
-The order of drawing widgets is based on position in
-the widget tree. The last widget's canvas is drawn last (on top of everything
-else inside its parent). add_widget takes a `index` parameter::
+The order of widget drawing is based on the widget's position in
+the widget tree. The :attr:`~kivy.uix.widget.Widget.add_widget`
+method takes an `index` parameter which can be used to specify it's position in
+the widget tree::
 
     root.add_widget(widget, index)
 
-for setting the z-index.
+The lower indexed widgets will be drawn above those with a higher index. Keep
+in mind that the default for `index` is 0, so widgets added later
+are drawn on top of the others unless specified otherwise.
 
 Organize with Layouts
 ---------------------
@@ -182,7 +185,7 @@ setting position relative to layout position.
 Behaves just like FloatLayout, except children positions are relative to layout
 position, not the screen.
 
-Examine the documentation of the individaul layouts for a more in-depth
+Examine the documentation of the individual layouts for a more in-depth
 understanding.
 
 |size_hint| and |pos_hint|:
@@ -256,7 +259,7 @@ will take out of the |size| given to it by the |BoxLayout|. In our example, the
 first |Button| specifies .5 for |size_hint_x|. The space for the widget is
 calculated like so::
 
-    first child's size_hint devided by
+    first child's size_hint divided by
     first child's size_hint + second child's size_hint + ...n(no of children)
     
     .5/(.5+1) = .333...
@@ -434,7 +437,8 @@ Both of the Apps should look something like this:
 
 .. image:: images/layout_background.png
 
-**To add a color to the background of a **custom layouts rule/class** **
+Add a color to the background of a **custom layouts rule/class**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The way we add background to the layout's instance can quickly become
 cumbersome if we need to use multiple layouts. To help with this, you can
@@ -693,7 +697,7 @@ To try to understand what is happening here, start from line 13::
     texture: self.background_image.texture
 
 This specifies that the `texture` property of `BorderImage` will be updated
-whenever the `texture` property of `background_inage` updates. We define the
+whenever the `texture` property of `background_image` updates. We define the
 background_image property at line 40::
 
     background_image = ObjectProperty(...

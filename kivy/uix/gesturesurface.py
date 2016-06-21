@@ -116,7 +116,7 @@ class GestureContainer(EventDispatcher):
         self._vectors = None
 
         # Key is touch.uid; value is a kivy.graphics.Line(); it's used even
-        # if line_width is 0 (ie not actually drawn anywhere)
+        # if line_width is 0 (i.e. not actually drawn anywhere)
         self._strokes = {}
 
         # Make sure the bbox is up to date with the first touch position
@@ -273,7 +273,7 @@ class GestureSurface(FloatLayout):
 
     :Events:
         `on_gesture_start` :class:`GestureContainer`
-            Fired when a new gesture is initiated on the surface, ie the
+            Fired when a new gesture is initiated on the surface, i.e. the
             first on_touch_down that does not collide with an existing
             gesture on the surface.
 
@@ -408,14 +408,13 @@ class GestureSurface(FloatLayout):
 # Gesture related methods
 # -----------------------------------------------------------------------------
     def init_gesture(self, touch):
-        '''Create a new gesture from touch, ie it's the first on
+        '''Create a new gesture from touch, i.e. it's the first on
         surface, or was not close enough to any existing gesture (yet)'''
         col = self.color
-        if self.use_random_color is True:
+        if self.use_random_color:
             col = hsv_to_rgb(random(), 1., 1.)
 
-        g = GestureContainer(touch, max_strokes=self.max_strokes,
-                             line_width=self.line_width, color=col)
+        g = GestureContainer(touch, max_strokes=self.max_strokes, color=col)
 
         # Create the bounding box Rectangle for the gesture
         if self.draw_bbox:

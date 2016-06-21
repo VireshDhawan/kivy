@@ -39,7 +39,7 @@ Single file glsl shader programs
 To simplify shader management, the vertex and fragment shaders can be loaded
 automatically from a single glsl source file (plain text). The file should
 contain sections identified by a line starting with '---vertex' and
-'---fragment' respectively (case insensitive), e.g.::
+'---fragment' respectively (case insensitive), e.g. ::
 
     // anything before a meaningful section such as this comment are ignored
 
@@ -65,6 +65,8 @@ include "gl_debug_logger.pxi"
 
 from os.path import join
 from kivy.graphics.c_opengl cimport *
+IF USE_OPENGL_MOCK == 1:
+    from kivy.graphics.c_opengl_mock cimport *
 IF USE_OPENGL_DEBUG == 1:
     from kivy.graphics.c_opengl_debug cimport *
 from kivy.graphics.vertex cimport vertex_attr_t
@@ -235,6 +237,12 @@ cdef class Shader:
     cdef int set_uniform(self, str name, value) except -1:
         if name in self.uniform_values and self.uniform_values[name] == value:
             return 0
+        cdef GLint data
+        glGetIntegerv(GL_CURRENT_PROGRAM, &data)
+        log_gl_error('Shader.set_uniform-glGetIntegerv')
+        if data != self.program:
+            glUseProgram(self.program)
+            log_gl_error('Shader.set_uniform-glUseProgram')
         self.uniform_values[name] = value
         self.upload_uniform(name, value)
         return 0

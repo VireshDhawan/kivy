@@ -228,6 +228,7 @@ class LangTestCase(unittest.TestCase):
         self.assertEquals(wid.a, 1)
 
     def test_kv_python_init(self):
+        from kivy.factory import Factory
         from kivy.lang import Builder
         from kivy.uix.widget import Widget
 
@@ -243,6 +244,11 @@ class LangTestCase(unittest.TestCase):
     y: self.width + 10
     height: self.cheese.value
     width: 44
+
+<MySecondWidget@Widget>:
+    x: 55
+    Widget:
+        x: 23
 ''')
 
         w = MyWidget(x=22, height=12, y=999)
@@ -250,3 +256,16 @@ class LangTestCase(unittest.TestCase):
         self.assertEqual(w.width, 44)
         self.assertEqual(w.y, 44 + 10)
         self.assertEqual(w.height, 12)
+
+        w2 = Factory.MySecondWidget(x=999)
+        self.assertEqual(w2.x, 999)
+        self.assertEqual(w2.children[0].x, 23)
+
+    def test_apply_rules(self):
+        Builder = self.import_builder()
+        Builder.load_string('<TestClassCustom>:\n\tobj: 42')
+        wid = TestClass()
+        Builder.apply(wid)
+        self.assertIsNone(wid.obj)
+        Builder.apply_rules(wid, 'TestClassCustom')
+        self.assertEqual(wid.obj, 42)

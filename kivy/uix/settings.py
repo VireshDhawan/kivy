@@ -169,7 +169,6 @@ __all__ = ('Settings', 'SettingsPanel', 'SettingItem', 'SettingString',
 
 import json
 import os
-from kivy.compat import string_types
 from kivy.factory import Factory
 from kivy.metrics import dp
 from kivy.config import ConfigParser
@@ -587,6 +586,8 @@ class SettingTitle(Label):
 
     title = Label.text
 
+    panel = ObjectProperty(None)
+
 
 class SettingsPanel(GridLayout):
     '''This class is used to contruct panel settings, for use with a
@@ -609,7 +610,8 @@ class SettingsPanel(GridLayout):
     '''
 
     def __init__(self, **kwargs):
-        kwargs.setdefault('cols', 1)
+        if 'cols' not in kwargs:
+            self.cols = 1
         super(SettingsPanel, self).__init__(**kwargs)
 
     def on_config(self, instance, value):

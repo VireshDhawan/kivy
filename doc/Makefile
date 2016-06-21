@@ -40,7 +40,7 @@ else
 endif
 
 AUTOBUILD_STAMP_BASE = autobuild.py-done-with-
-AUTOBUILD_STAMP      = $(AUTOBUILD_STAMP_BASE)$(PYTHON)
+AUTOBUILD_STAMP      = "$(AUTOBUILD_STAMP_BASE)$(PYTHON)"
 
 .PHONY: help clean html web pickle htmlhelp latex changes linkcheck gettext
 
@@ -80,7 +80,7 @@ html:
 	$(MKDIR) build$(P)html build$(P)doctrees
 ifeq ("$(wildcard $(AUTOBUILD_STAMP))","")
 	$(PYTHON) autobuild.py silenced=$(ENDUSER_BUILD)
-	touch $(AUTOBUILD_STAMP)
+	touch $(AUTOBUILD_STAMP) || type NUL > $(AUTOBUILD_STAMP)
 endif
 	$(PYTHON) gallery.py
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS$(_TESTS)) build/html
@@ -138,6 +138,7 @@ endif
 pdf: latex
 	rm -f build$(P)latex$(P)Kivy.pdf
 	-$(MAKE) -C build$(P)latex all-pdf LATEXOPTS=$(LATEXOPTS$(_TESTS))
+
 ifneq ("$(wildcard build$(P)latex$(P)Kivy.pdf)","")
 	@echo
 	@echo "Build finished; the PDF file(s) are in build/latex."

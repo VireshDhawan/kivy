@@ -216,6 +216,7 @@ from kivy.context import register_context
 from kivy.weakmethod import WeakMethod
 from kivy.config import Config
 from kivy.logger import Logger
+from kivy.compat import clock as _default_time
 import time
 
 try:
@@ -238,12 +239,9 @@ try:
                     self._timer, ctypes.byref(delay), 0,
                     ctypes.c_void_p(), ctypes.c_void_p(), False)
                 _kernel32.WaitForSingleObject(self._timer, 0xffffffff)
-
-        _default_time = time.clock
     else:
         if platform == 'darwin':
             _libc = ctypes.CDLL('libc.dylib')
-            _default_time = time.time
         else:
             from ctypes.util import find_library
             _libc = ctypes.CDLL(find_library('c'), use_errno=True)
@@ -261,6 +259,15 @@ try:
 
                 if 'linux' in platform:
                     _clockid = 4  # CLOCK_MONOTONIC_RAW (Linux specific)
+                elif 'freebsd' in platform:
+                    # clockid constants from sys/time.h
+                    # _clockid = 4 # CLOCK_MONOTONIC (FreeBSD specific)
+                    # 11: CLOCK_MONOTONIC_PRECISE (FreeBSD known OK for 10.2)
+                    _clockid = 11
+                    # _clockid = 12
+                    # 12: CLOCK_MONOTONIC_FAST (FreeBSD specific)
+                    Logger.debug('clock.py: {{{:s}}} clock ID {:d}'.format(
+                        platform, _clockid))
                 else:
                     _clockid = 1  # CLOCK_MONOTONIC
 
@@ -284,12 +291,13 @@ try:
             def usleep(self, microseconds):
                 _libc_usleep(int(microseconds))
 
-except (OSError, ImportError):
+except (OSError, ImportError, AttributeError):
     # ImportError: ctypes is not available on python-for-android.
+    # AttributeError: ctypes is now available on python-for-android, but
+    #   "undefined symbol: clock_gettime". CF #3797
     # OSError: if the libc cannot be readed (like with buildbot: invalid ELF
     # header)
 
-    _default_time = time.time
     _default_sleep = time.sleep
 
     class _ClockBase(object):
@@ -333,7 +341,7 @@ class ClockEvent(object):
         If the callback is already scheduled, it will not be scheduled again.
         '''
         # if the event is not yet triggered, do it !
-        if self._is_triggered is False:
+        if not self._is_triggered:
             self._is_triggered = True
             # update starttime
             self._last_dt = self.clock._last_tick
@@ -671,8 +679,7 @@ class ClockBase(_ClockBase):
 
     time = staticmethod(partial(_default_time))
 
-ClockBase.time.__doc__ = '''Proxy method for time.time() or time.clock(),
-whichever is more suitable for the running OS'''
+ClockBase.time.__doc__ = '''Proxy method for :func:`~kivy.compat.clock`. '''
 
 
 def mainthread(func):

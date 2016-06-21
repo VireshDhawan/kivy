@@ -134,7 +134,7 @@ you and implemented the portions of our code, where efficiency really
 is critical, on the C level.
 
 For graphics drawing, we also leverage today's GPUs which are, for
-some tasks such as graphics rasterization, much more efficent than a
+some tasks such as graphics rasterization, much more efficient than a
 CPU. Kivy does as much as is reasonable on the GPU to maximize
 performance. If you use our Canvas API to do the drawing, there is
 even a compiler that we invented which optimizes your drawing code
@@ -158,12 +158,12 @@ clever optimizations to make your application run smoothly.
 Does Kivy support Python 3.x?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Yes! As of version 1.8.0 Kivy supports both Python >= 2.7 and Python >= 3.3
-with the same codebase.
+Yes! As of version 1.8.0 Kivy supports both Python >= 2.7 and Python
+>= 3.3 with the same codebase. Python 3 is also now supported by
+python-for-android.
 
-However, be aware that while Kivy will run in Python 3.3+, packaging support
-is not yet complete. If you plan to create mobile apps for Android or iOS,
-you should use Python 2.7 for now.
+However, be aware that while Kivy will run in Python 3.3+, our iOS
+build tools still require Python 2.7.
 
 
 I've already started with Python 3.x! Is there anything I can do?

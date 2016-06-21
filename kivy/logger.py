@@ -19,7 +19,7 @@ Examples of usage::
 
 The message passed to the logger is split into two parts, separated by a colon
 (:). The first part is used as a title, and the second part is used as the
-message. This way, you can "categorize" your message easily.::
+message. This way, you can "categorize" your message easily. ::
 
     Logger.info('Application: This is a test')
 
@@ -134,9 +134,12 @@ class FileHandler(logging.Handler):
             l = l[:-maxfiles]
             print('Purge %d log files' % len(l))
 
-            # now, unlink every files in the list
+            # now, unlink every file in the list
             for filename in l:
-                unlink(filename['fn'])
+                try:
+                    unlink(filename['fn'])
+                except PermissionError as e:
+                    print('Skipped file {0}, {1}'.format(filename['fn'], e))
 
         print('Purge finished!')
 
@@ -180,14 +183,26 @@ class FileHandler(logging.Handler):
         if FileHandler.fd in (None, False):
             return
 
-        FileHandler.fd.write('[%-18s] ' % record.levelname)
-        try:
-            FileHandler.fd.write(record.msg)
-        except UnicodeEncodeError:
-            if PY2:
-                FileHandler.fd.write(record.msg.encode('utf8'))
-        FileHandler.fd.write('\n')
-        FileHandler.fd.flush()
+        msg = self.format(record)
+        stream = FileHandler.fd
+        fs = "%s\n"
+        stream.write('[%-18s] ' % record.levelname)
+        if PY2:
+            try:
+                if (isinstance(msg, unicode) and
+                    getattr(stream, 'encoding', None)):
+                    ufs = u'%s\n'
+                    try:
+                        stream.write(ufs % msg)
+                    except UnicodeEncodeError:
+                        stream.write((ufs % msg).encode(stream.encoding))
+                else:
+                    stream.write(fs % msg)
+            except UnicodeError:
+                stream.write(fs % msg.encode("UTF-8"))
+        else:
+            stream.write(fs % msg)
+        stream.flush()
 
     def emit(self, message):
         # during the startup, store the message in the history
@@ -313,7 +328,13 @@ if 'KIVY_NO_CONSOLELOG' not in os.environ:
             os.name != 'nt' and
             os.environ.get('KIVY_BUILD') not in ('android', 'ios') and
             os.environ.get('TERM') in (
-                'xterm', 'rxvt', 'rxvt-unicode', 'xterm-256color'))
+                'rxvt',
+                'rxvt-256color',
+                'rxvt-unicode',
+                'rxvt-unicode-256color',
+                'xterm',
+                'xterm-256color',
+                ))
         color_fmt = formatter_message(
             '[%(levelname)-18s] %(message)s', use_color)
         formatter = ColoredFormatter(color_fmt, use_color=use_color)

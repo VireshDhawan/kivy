@@ -123,7 +123,6 @@ The storage API emulates the container type for the synchronous API::
 
 from kivy.clock import Clock
 from kivy.event import EventDispatcher
-from functools import partial
 
 
 class AbstractStore(EventDispatcher):
@@ -344,6 +343,7 @@ class AbstractStore(EventDispatcher):
     def store_clear(self):
         for key in self.store_keys():
             self.store_delete(key)
+        self.store_sync()
 
     def store_get_async(self, key, callback):
         try:

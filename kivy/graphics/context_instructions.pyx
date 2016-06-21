@@ -202,7 +202,9 @@ cdef class Color(ContextInstruction):
 
         c = Color(b=0.5)  # sets the blue component only
 
-    In kv lang you can set the color properties directly::
+    In kv lang you can set the color properties directly:
+
+    .. code-block:: kv
 
         <Rule>:
             canvas:
@@ -396,7 +398,7 @@ cdef class LoadIdentity(ContextInstruction):
     .. versionadded:: 1.6.0
     '''
     def __init__(self, **kwargs):
-        self.context_state = kwargs.get('stack', 'modelview_mat')
+        self.stack = kwargs.get('stack', 'modelview_mat')
 
     property stack:
         '''Name of the matrix stack to use. Can be 'modelview_mat' or
@@ -582,7 +584,7 @@ cdef class Transform(MatrixInstruction):
 cdef class Rotate(Transform):
     '''Rotate the coordinate space by applying a rotation transformation
     on the modelview matrix. You can set the properties of the instructions
-    afterwards with e.g.::
+    afterwards with e.g. ::
 
         rot.angle = 90
         rot.axis = (0, 0, 1)

@@ -12,24 +12,25 @@ In-memory image loading
 .. versionadded:: 1.9.0
 
     Official support for in-memory loading. Not all the providers support it,
-    but at the moment SDL2, pygame, pil and imageio works.
+    but currently SDL2, pygame, pil and imageio work.
 
-To load an image with a filename, you usually do::
+To load an image with a filename, you would usually do::
 
     from kivy.core.image import Image as CoreImage
     im = CoreImage("image.png")
 
-Now you can load from memory block. Instead of passing the filename, you'll need
-to pass the data as a BytesIO object + an "ext" parameters. Both are mandatory::
+You can also load the image data directly from a memory block. Instead of
+passing the filename, you'll need to pass the data as a BytesIO object
+together with an "ext" parameter. Both are mandatory::
 
     import io
     from kivy.core.image import Image as CoreImage
     data = io.BytesIO(open("image.png", "rb").read())
     im = CoreImage(data, ext="png")
 
-By default, the image will not be cached, as our internal cache require a
-filename. If you want caching, add a filename that represent your file (it will
-be used only for caching)::
+By default, the image will not be cached as our internal cache requires a
+filename. If you want caching, add a filename that represents your file (it
+will be used only for caching)::
 
     import io
     from kivy.core.image import Image as CoreImage
@@ -37,6 +38,8 @@ be used only for caching)::
     im = CoreImage(data, ext="png", filename="image.png")
 
 '''
+import re
+from base64 import b64decode
 
 __all__ = ('Image', 'ImageLoader', 'ImageData')
 
@@ -448,12 +451,13 @@ class Image(EventDispatcher):
         added.
 
     :Parameters:
-        `arg` : can be a string (str), Texture or Image object.
-            A string is interpreted as a path to the image to be loaded.
-            You can also provide a texture object or an already existing
-            image object. In the latter case, a real copy of the given
-            image object will be returned.
-        `keep_data` : bool, defaults to False.
+        `arg` : can be a string (str), Texture, BytesIO or Image object
+            A string path to the image file or data URI to be loaded; or a
+            Texture object, which will be wrapped in an Image object; or a
+            BytesIO object containing raw image data; or an already existing
+            image object, in which case, a real copy of the given image object
+            will be returned.
+        `keep_data` : bool, defaults to False
             Keep the image data when the texture is created.
         `scale` : float, defaults to 1.0
             Scale of the image.
@@ -462,10 +466,16 @@ class Image(EventDispatcher):
         `anim_delay`: float, defaults to .25
             Delay in seconds between each animation frame. Lower values means
             faster animation.
+        `ext`: str, only with BytesIO `arg`
+            File extension to use in determining how to load raw image data.
+        `filename`: str, only with BytesIO `arg`
+            Filename to use in the image cache for raw image data.
     '''
 
     copy_attributes = ('_size', '_filename', '_texture', '_image',
                        '_mipmap', '_nocache')
+
+    data_uri_re = re.compile(r'^data:image/([^;,]*)(;[^,]*)?,(.*)$')
 
     def __init__(self, arg, **kwargs):
         # this event should be fired on animation of sequenced img's
@@ -508,7 +518,19 @@ class Image(EventDispatcher):
                 filename = '__inline__'
             self.load_memory(arg, ext, filename)
         elif isinstance(arg, string_types):
-            self.filename = arg
+            groups = self.data_uri_re.findall(arg)
+            if groups:
+                self._nocache = True
+                imtype, optstr, data = groups[0]
+                options = [o for o in optstr.split(';') if o]
+                ext = imtype
+                isb64 = 'base64' in options
+                if data:
+                    if isb64:
+                        data = b64decode(data)
+                    self.load_memory(BytesIO(data), ext)
+            else:
+                self.filename = arg
         else:
             raise Exception('Unable to load image type {0!r}'.format(arg))
 
@@ -573,7 +595,7 @@ class Image(EventDispatcher):
         '''
         # stop animation
         Clock.unschedule(self._anim)
-        if allow_anim and self._anim_available:
+        if allow_anim and self._anim_available and self._anim_delay >= 0:
             Clock.schedule_interval(self._anim, self.anim_delay)
             self._anim()
 
@@ -773,7 +795,7 @@ class Image(EventDispatcher):
         Any other extensions are not officially supported.
 
         The flipped parameter flips the saved image vertically, and
-        defaults to True.
+        defaults to False.
 
         Example::
 

@@ -90,6 +90,16 @@ class SequentialAnimationTestCase(unittest.TestCase):
         self.a += Animation(x=0, d=1, t='out_bounce')
         self.w = Widget()
 
+    def test_cancel_all(self):
+        self.a.start(self.w)
+        self.sleep(.5)
+        Animation.cancel_all(self.w)
+
+    def test_cancel_all_2(self):
+        self.a.start(self.w)
+        self.sleep(.5)
+        Animation.cancel_all(self.w, 'x')
+
     def test_stop_all(self):
         self.a.start(self.w)
         self.sleep(.5)
@@ -99,3 +109,21 @@ class SequentialAnimationTestCase(unittest.TestCase):
         self.a.start(self.w)
         self.sleep(.5)
         Animation.stop_all(self.w, 'x')
+
+    def _test_on_progress(self, anim, widget, progress):
+        self._on_progress_called = True
+
+    def _test_on_complete(self, anim, widget):
+        self._on_complete_called = True
+
+    def test_events(self):
+        self._on_progress_called = False
+        self._on_complete_called = False
+        self.a.bind(on_progress=self._test_on_progress,
+                    on_complete=self._test_on_complete)
+        self.a.start(self.w)
+        self.sleep(.5)
+        self.assertTrue(self._on_progress_called)
+        self.sleep(2)
+        self.assertTrue(self._on_progress_called)
+        self.assertTrue(self._on_complete_called)

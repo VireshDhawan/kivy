@@ -16,6 +16,8 @@ include "config.pxi"
 include "opcodes.pxi"
 
 from c_opengl cimport *
+IF USE_OPENGL_MOCK == 1:
+    from kivy.graphics.c_opengl_mock cimport *
 IF USE_OPENGL_DEBUG == 1:
     from c_opengl_debug cimport *
 from kivy.compat import PY2
@@ -339,7 +341,9 @@ cdef class VertexInstruction(Instruction):
             with self.canvas:
                 Rectangle(source='mylogo.png', pos=self.pos, size=self.size)
 
-        Here's the equivalent in Kivy language::
+        Here's the equivalent in Kivy language:
+
+        .. code-block:: kv
 
             <MyWidget>:
                 canvas:
@@ -368,7 +372,7 @@ cdef class VertexInstruction(Instruction):
         can be negative, and would represent the 'flipped' texture. By default,
         the tex_coords are::
 
-            [u, v, u + w, v, u + w, y + h, u, y + h]
+            [u, v, u + w, v, u + w, v + h, u, v + h]
 
         You can pass your own texture coordinates if you want to achieve fancy
         effects.

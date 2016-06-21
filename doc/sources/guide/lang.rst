@@ -72,15 +72,15 @@ There are three keywords specific to Kv language:
 Special syntaxes
 ----------------
 
-There are two special syntax to define values for the whole Kv context:
+There are two special syntaxes to define values for the whole Kv context:
 
-To import something from python::
+To access python modules and classes from kv, ::
 
     #:import name x.y.z
     #:import isdir os.path.isdir
     #:import np numpy
 
-Is equivalent to::
+is equivalent to::
 
     from x.y import z as name
     from os.path import isdir
@@ -88,11 +88,11 @@ Is equivalent to::
 
 in python.
 
-To set a global value::
+To set a global value, ::
 
     #:set name value
 
-Is equivalent to::
+is equivalent to::
 
     name = value
 
@@ -158,8 +158,9 @@ To have your display updated when your data change, you can now have just:
         cols: len(root.data)
 
 .. note::
-    Widget names must start with upper case letters while property names with
-    lower case ones, following the `PEP8 Naming Conventions<https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_
+    Widget names should start with upper case letters while property names
+    should start with lower case ones. Following the `PEP8 Naming Conventions
+    <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_
     is encouraged.
 
 Event Bindings
@@ -314,7 +315,7 @@ In myapp.py:
     ...
 
 `txt_inpt` is defined as a :class:`~kivy.properties.ObjectProperty` initialized
-to `None` inside the Class.::
+to `None` inside the Class. ::
 
     txt_inpt = ObjectProperty(None)
 
